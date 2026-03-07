@@ -50,7 +50,6 @@
             80%, 100% { content: ''; }
         }
 
-        /* Error Message Style */
         .error-message {
             color: #ef4444;
             background-color: #fef2f2;
@@ -59,6 +58,15 @@
             border: 1px solid #fee2e2;
             margin-top: 0.5rem;
             font-size: 0.875rem;
+        }
+
+        .d-day-badge {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -77,16 +85,28 @@
 
         <!-- Day Selector Tabs -->
         <div class="flex flex-wrap gap-2 mb-8">
-            <button onclick="changeDay('월')" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="월">월요일</button>
-            <button onclick="changeDay('화')" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="화">화요일</button>
-            <button onclick="changeDay('수')" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="수">수요일</button>
-            <button onclick="changeDay('목')" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="목">목요일</button>
-            <button onclick="changeDay('금')" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="금">금요일</button>
+            <button onclick="changeDay('월')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="월">월</button>
+            <button onclick="changeDay('화')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="화">화</button>
+            <button onclick="changeDay('수')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="수">수</button>
+            <button onclick="changeDay('목')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="목">목</button>
+            <button onclick="changeDay('금')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="금">금</button>
+            <button onclick="changeDay('토')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="토">토</button>
+            <button onclick="changeDay('일')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="일">일</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Timetable & AI Tutor -->
+            <!-- Left Column: Upcoming Events & AI Tutor -->
             <div class="lg:col-span-1 space-y-6">
+                <!-- Upcoming Important Events Card (좌측 상단 배치) -->
+                <div class="glass-card rounded-3xl p-6 border-2 border-red-100 bg-gradient-to-br from-red-50 to-white">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
+                        <i class="fas fa-calendar-day text-red-500"></i> 주요 학사 일정
+                    </h2>
+                    <div id="upcoming-events-list" class="space-y-3">
+                        <!-- Dynamic Events with Countdown -->
+                    </div>
+                </div>
+
                 <!-- AI Tutor Card -->
                 <div class="glass-card rounded-3xl p-6 border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-white">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
@@ -208,6 +228,13 @@
         const apiKey = "";
         const modelName = "gemini-2.5-flash-preview-09-2025";
         
+        // 학사 일정 데이터 (2026년으로 갱신하여 현재 시점에서 보이도록 수정)
+        const academicEvents = [
+            { title: "1학기 정기고사", start: "2026-04-27", end: "2026-04-29", type: "exam" },
+            { title: "현장 체험학습", start: "2026-05-08", end: "2026-05-08", type: "event" },
+            { title: "1학기 기말고사", start: "2026-06-30", end: "2026-07-02", type: "exam" }
+        ];
+
         const studyPlan = {
             '월': {
                 academy: '영어학원 (17:00 ~ 19:00)',
@@ -253,6 +280,23 @@
                     { name: '금요 세션 1', time: '19:00 ~ 20:30', focus: '과학 총정리' },
                     { name: '금요 세션 2', time: '20:30 ~ 22:00', focus: '수학 오답노트' }
                 ]
+            },
+            '토': {
+                academy: '학원 없음 (주말 보충)',
+                dinner: '18:00 ~ 19:00 (자유 식사)',
+                timetable: ['주말 자율 학습', '취미 활동'],
+                sessions: [
+                    { name: '주말 집중 세션', time: '10:00 ~ 13:00', focus: '취약 과목 보충' },
+                    { name: '주말 자유 세션', time: '14:00 ~ 17:00', focus: '심화 문제 풀이' }
+                ]
+            },
+            '일': {
+                academy: '학원 없음 (휴식 및 재충전)',
+                dinner: '18:00 ~ 19:00 (가족 식사)',
+                timetable: ['휴식', '일주일 계획 점검'],
+                sessions: [
+                    { name: '일요일 점검', time: '20:00 ~ 21:30', focus: '차주 계획 수립' }
+                ]
             }
         };
 
@@ -267,47 +311,72 @@
         let currentDay = '월';
         let currentScore = 0;
 
-        // --- Core Gemini API Call Function ---
         async function callGemini(userQuery) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }]
-            };
-
-            // Retry logic with exponential backoff (up to 5 times)
+            const payload = { contents: [{ parts: [{ text: userQuery }] }] };
             for (let i = 0; i < 5; i++) {
                 try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
                     const data = await response.json();
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) return text;
-                    throw new Error("Invalid response format");
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "답변을 가져올 수 없습니다.";
                 } catch (error) {
-                    if (i === 4) throw error; // Re-throw if all retries fail
-                    const delay = Math.pow(2, i) * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    if (i === 4) throw error;
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
                 }
             }
+        }
+
+        function renderAcademicEvents() {
+            const container = document.getElementById('upcoming-events-list');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 오늘 이후의 일정만 필터링
+            const upcoming = academicEvents.filter(event => new Date(event.end) >= today);
+
+            if (upcoming.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-400 italic">현재 예정된 일정이 없습니다.</p>`;
+                return;
+            }
+
+            container.innerHTML = upcoming.map(event => {
+                const startDate = new Date(event.start);
+                const diffTime = startDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let dDayLabel = "";
+                if (diffDays === 0) dDayLabel = "D-Day";
+                else if (diffDays < 0) dDayLabel = "진행 중";
+                else dDayLabel = `D-${diffDays}`;
+
+                const isExam = event.type === 'exam';
+                const dateDisplay = event.start === event.end ? event.start.substring(5) : `${event.start.substring(5)}~${event.end.substring(5)}`;
+
+                return `
+                    <div class="flex items-center justify-between p-3 ${isExam ? 'bg-white border-red-200' : 'bg-slate-50 border-slate-100'} rounded-2xl border shadow-sm">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold ${isExam ? 'text-red-500' : 'text-slate-500'}">${event.title}</span>
+                            <span class="text-[10px] text-slate-400">${dateDisplay.replace('-', '/')}</span>
+                        </div>
+                        <span class="${isExam ? 'd-day-badge' : 'bg-slate-200 text-slate-600 px-2 py-0.5 rounded-lg font-black text-[10px]'}">${dDayLabel}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         async function generateAIAdvice() {
             const container = document.getElementById('ai-advice-container');
             container.classList.remove('animate-pulse-soft');
             container.innerHTML = 'AI 분석 중<span class="loading-dots"></span>';
-            
             try {
-                const prompt = `중학교 3학년 학생의 스케줄 분석 조언을 해줘. 오늘은 ${currentDay}요일이고, 수업은 [${studyPlan[currentDay].timetable.join(', ')}], 학원은 [${studyPlan[currentDay].academy}]야. 집중 과목은 과학, 수학, 역사야. 친근한 선생님 말투로 60자 이내 짧게 한국어로 말해줘.`;
+                const nextExam = academicEvents.find(e => e.type === 'exam' && new Date(e.start) >= new Date());
+                const examInfo = nextExam ? `${nextExam.title}이 ${nextExam.start}에 예정되어 있어.` : "가장 가까운 시험 일정을 확인 중이야.";
+                const prompt = `중3 학생 조언: 오늘 ${currentDay}요일, 학교수업 [${studyPlan[currentDay].timetable.join(', ')}], 학원 [${studyPlan[currentDay].academy}]. ${examInfo} 집중과목: 과학, 수학, 역사. 선생님 말투로 60자 이내 한국어.`;
                 const result = await callGemini(prompt);
                 container.textContent = result;
             } catch (err) {
-                container.innerHTML = '<span class="error-message">조언을 불러오지 못했습니다. 다시 시도해 주세요.</span>';
+                container.innerHTML = '<span class="error-message">조언을 불러오지 못했습니다.</span>';
             }
         }
 
@@ -316,29 +385,26 @@
             const resBox = document.getElementById('ai-tutor-response');
             const concept = input.value.trim();
             if (!concept) return;
-
             resBox.classList.remove('hidden');
-            resBox.innerHTML = 'AI 튜터가 생각 중입니다<span class="loading-dots"></span>';
-            
+            resBox.innerHTML = '생각 중<span class="loading-dots"></span>';
             try {
-                const prompt = `중3 수준에서 "${concept}"을 쉽게 설명해줘. 과학, 수학, 역사와 관련 있다면 더 좋아. 비유를 써서 150자 이내로 한국어로 작성해줘.`;
+                const prompt = `중3 수준에서 "${concept}"을 쉽게 설명해줘. 과학, 수학, 역사 관련이면 더 좋아. 비유 사용 150자 이내 한국어.`;
                 const result = await callGemini(prompt);
                 resBox.innerHTML = result;
             } catch (err) {
-                resBox.innerHTML = '<span class="error-message">답변 생성 중 오류가 발생했습니다.</span>';
+                resBox.innerHTML = '<span class="error-message">오류 발생. 다시 시도해 주세요.</span>';
             }
         }
 
         async function getMotivationalQuote() {
             const quoteEl = document.getElementById('ai-motivation');
-            quoteEl.innerHTML = 'AI 동기 부여 생성 중<span class="loading-dots"></span>';
-            
+            quoteEl.innerHTML = '생성 중<span class="loading-dots"></span>';
             try {
-                const prompt = `내 오늘 점수는 ${currentScore}점이야 (25점 만점). 이 점수에 맞춰서 나를 응원하거나 자극하는 짧고 멋진 문구를 한글로 만들어줘. 80자 이내.`;
+                const prompt = `내 점수 ${currentScore}/25점. 시험 대비를 위해 나를 응원하는 짧고 강렬한 한국어 문구 80자 이내.`;
                 const result = await callGemini(prompt);
                 quoteEl.textContent = result;
             } catch (err) {
-                quoteEl.textContent = "가장 큰 위험은 아무것도 하지 않는 것이다. 다시 힘을 내봐요!";
+                quoteEl.textContent = "지금의 노력이 당신의 내일을 바꿉니다!";
             }
         }
 
@@ -346,12 +412,9 @@
             currentDay = day;
             document.querySelectorAll('.day-tab').forEach(t => {
                 t.classList.toggle('tab-active', t.getAttribute('data-day') === day);
-                if (t.getAttribute('data-day') !== day) t.classList.add('bg-white', 'text-slate-600');
             });
 
             const dayData = studyPlan[day];
-            
-            // Academy/Meal
             document.getElementById('academy-schedule').innerHTML = `
                 <div class="flex items-center justify-between p-3 bg-purple-50 rounded-2xl border border-purple-100">
                     <span class="text-sm font-bold text-purple-700">학원</span>
@@ -363,7 +426,6 @@
                 </div>
             `;
 
-            // Timetable
             document.getElementById('timetable-list').innerHTML = dayData.timetable.map((s, i) => `
                 <div class="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                     <span class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 text-[10px] font-black rounded-lg text-slate-400">${i+1}</span>
@@ -371,7 +433,6 @@
                 </div>
             `).join('');
 
-            // Sessions
             document.getElementById('session-grid').innerHTML = dayData.sessions.map((s, i) => `
                 <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
@@ -383,13 +444,13 @@
                 </div>
             `).join('');
 
-            // Reset AI components
             document.getElementById('ai-tutor-response').classList.add('hidden');
             document.getElementById('ai-advice-container').innerHTML = '버튼을 눌러 인공지능 학습 조언을 확인하세요!';
             document.getElementById('ai-advice-container').classList.add('animate-pulse-soft');
             
             renderChecklist();
             updateScore();
+            renderAcademicEvents(); // 요일 변경 시 일정 리스트도 갱신
         }
 
         function renderChecklist() {
@@ -410,30 +471,20 @@
             const checks = document.querySelectorAll('input[type="checkbox"]:checked');
             currentScore = checks.length * 5;
             document.getElementById('total-score-display').innerHTML = `${currentScore} <span class="text-lg text-slate-300">/ 25</span>`;
-            
             const badge = document.getElementById('grade-badge');
-            let grade = '-';
-            let cls = 'text-slate-300 bg-slate-50 border-slate-200';
-
+            let grade = '-', cls = 'text-slate-300 bg-slate-50 border-slate-200';
             if(currentScore >= 20) { grade = 'S'; cls = 'text-yellow-600 bg-yellow-50 border-yellow-400'; }
             else if(currentScore >= 15) { grade = 'A'; cls = 'text-blue-600 bg-blue-50 border-blue-400'; }
             else if(currentScore >= 10) { grade = 'B'; cls = 'text-green-600 bg-green-50 border-green-400'; }
             else if(currentScore > 0) { grade = 'C'; cls = 'text-orange-600 bg-orange-50 border-orange-400'; }
-
             badge.textContent = grade;
             badge.className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black border-2 transition-all duration-300 shadow-sm ${cls}`;
-
-            if(currentScore === 25) {
-                showModal("미션 완벽 클리어!", "과학, 수학, 역사 집중 학습부터 생활 습관까지 오늘 하루 완벽했습니다!", "👑");
-            }
+            if(currentScore === 25) showModal("오늘도 수고했어!", "시험 공부와 생활 습관 모두 완벽한 하루였어. 내일도 파이팅!", "👑");
         }
 
         function toggleCheckbox(id) {
             const cb = document.getElementById(id);
-            if(cb) {
-                cb.checked = !cb.checked;
-                updateScore();
-            }
+            if(cb) { cb.checked = !cb.checked; updateScore(); }
         }
 
         function showModal(title, desc, icon) {
@@ -451,10 +502,9 @@
             const now = new Date();
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             document.getElementById('current-date').textContent = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
-            
             const todayIdx = now.getDay();
-            const initialDay = (todayIdx === 0 || todayIdx === 6) ? '월' : days[todayIdx];
-            changeDay(initialDay);
+            changeDay(days[todayIdx]);
+            renderAcademicEvents();
         }
 
         window.onload = updateDateTime;
