@@ -70,9 +70,8 @@
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8" onload="updateDateTime()">
     <div class="max-w-6xl mx-auto">
-        <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800 tracking-tight">3학년 5반 AI 플래너</h1>
@@ -83,7 +82,6 @@
             </div>
         </header>
 
-        <!-- Day Selector Tabs -->
         <div class="flex flex-wrap gap-2 mb-8">
             <button onclick="changeDay('월')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="월">월</button>
             <button onclick="changeDay('화')" class="day-tab px-4 py-2 rounded-xl font-bold bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 border border-slate-200" data-day="화">화</button>
@@ -95,19 +93,15 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Upcoming Events & AI Tutor -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Upcoming Important Events Card (좌측 상단 배치) -->
                 <div class="glass-card rounded-3xl p-6 border-2 border-red-100 bg-gradient-to-br from-red-50 to-white">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
                         <i class="fas fa-calendar-day text-red-500"></i> 주요 학사 일정
                     </h2>
                     <div id="upcoming-events-list" class="space-y-3">
-                        <!-- Dynamic Events with Countdown -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- AI Tutor Card -->
                 <div class="glass-card rounded-3xl p-6 border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-white">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
                         <i class="fas fa-robot text-blue-500"></i> AI 개념 튜터 ✨
@@ -121,35 +115,28 @@
                             </button>
                         </div>
                         <div id="ai-tutor-response" class="text-sm text-slate-700 bg-white p-4 rounded-xl border border-blue-50 hidden min-h-[60px] whitespace-pre-wrap">
-                            <!-- AI Response -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 
-                <!-- Academy & Meal Card -->
                 <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-500">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
                         <i class="fas fa-calendar-check text-purple-500"></i> 외부 스케줄
                     </h2>
                     <div id="academy-schedule" class="space-y-3">
-                        <!-- Dynamic content -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- School Timetable Card -->
                 <div class="glass-card rounded-3xl p-6">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
                         <i class="fas fa-school text-orange-500"></i> 학교 시간표
                     </h2>
                     <div id="timetable-list" class="space-y-2">
-                        <!-- Dynamic content -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
-            <!-- Middle Column: Study Sessions & Checklist -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- AI Strategy Box -->
                 <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-white to-blue-50">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                         <div>
@@ -168,13 +155,10 @@
                         </div>
                     </div>
 
-                    <!-- Sessions -->
                     <div id="session-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Dynamic content -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Checklist -->
                 <div class="glass-card rounded-3xl p-8">
                     <div class="flex justify-between items-center mb-8">
                         <h2 class="text-2xl font-bold">성과 체크리스트</h2>
@@ -190,11 +174,9 @@
                     </div>
 
                     <div class="space-y-3" id="checklist-container">
-                        <!-- Checklist Items -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Motivation Box -->
                 <div class="bg-slate-800 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
                     <div class="absolute -right-4 -bottom-4 opacity-10">
                         <i class="fas fa-quote-right text-8xl"></i>
@@ -214,7 +196,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl">
             <div id="modal-icon" class="text-7xl mb-6">🏆</div>
@@ -228,21 +209,22 @@
         const apiKey = "";
         const modelName = "gemini-2.5-flash-preview-09-2025";
         
-        // 학사 일정 데이터 (2026년으로 갱신하여 현재 시점에서 보이도록 수정)
+        // 학사 일정 데이터
         const academicEvents = [
             { title: "1학기 정기고사", start: "2026-04-27", end: "2026-04-29", type: "exam" },
             { title: "현장 체험학습", start: "2026-05-08", end: "2026-05-08", type: "event" },
             { title: "1학기 기말고사", start: "2026-06-30", end: "2026-07-02", type: "exam" }
         ];
 
+        // 업데이트된 스터디 플랜 (수요일 기타학원 제거 및 저녁 집중 세션 추가)
         const studyPlan = {
             '월': {
                 academy: '영어학원 (17:00 ~ 19:00)',
                 dinner: '19:00 ~ 20:00 (학원 후 식사)',
                 timetable: ['중국어', '사회', '영어', '과학', '국어', '역사'],
                 sessions: [
-                    { name: '복습 세션 1', time: '20:00 ~ 21:30', focus: '과학 / 수학' },
-                    { name: '복습 세션 2', time: '21:30 ~ 22:30', focus: '역사 / 숙제' }
+                    { name: '긴급 복구 세션 1', time: '20:00 ~ 21:30', focus: '[수학/과학] 밀린 진도 파악 및 개념 1회독 (욕심내지 않기)' },
+                    { name: '마인드 세팅 세션 2', time: '21:30 ~ 22:30', focus: '[역사] 교과서 옛날이야기 읽듯 가볍게 통독 (흐름 파악)' }
                 ]
             },
             '화': {
@@ -250,17 +232,18 @@
                 dinner: '19:00 ~ 20:00 (학원 후 식사)',
                 timetable: ['수학', '국어', '영어', '과학', '진로', '체육', '동아리'],
                 sessions: [
-                    { name: '복습 세션 1', time: '20:00 ~ 21:30', focus: '수학 집중' },
-                    { name: '복습 세션 2', time: '21:30 ~ 22:30', focus: '과학 / 역사' }
+                    { name: '수학 집중 세션 1', time: '20:00 ~ 21:30', focus: '[수학] 교과서 기본 예제 및 필수 유형만 풀기' },
+                    { name: '복습 세션 2', time: '21:30 ~ 22:30', focus: '[과학] 오늘 배운 학교 진도 백지 복습' }
                 ]
             },
             '수': {
-                academy: '기타학원 (19:00 ~ 20:00)',
-                dinner: '18:00 ~ 19:00 (학원 전 식사)',
+                academy: '학원 없음 (자율 학습)',
+                dinner: '18:00 ~ 19:00 (정시 식사)',
                 timetable: ['음악', '가정', '수학', '과학', '국어', '학스3'],
                 sessions: [
-                    { name: '방과 후 세션', time: '16:30 ~ 18:00', focus: '과학 / 수학' },
-                    { name: '밤 마무리 세션', time: '20:30 ~ 22:00', focus: '역사 정독' }
+                    { name: '방과 후 세션', time: '16:30 ~ 18:00', focus: '[역사] 핵심 사건 연표 정리 및 주요 키워드 암기 시작' },
+                    { name: '저녁 집중 세션', time: '19:00 ~ 20:30', focus: '[과학] 부족한 개념 복습 및 문제 풀이' },
+                    { name: '밤 마무리 세션', time: '20:30 ~ 22:00', focus: '[수학] 어제 푼 문제 오답 확인 및 유사 문제 3개 풀기' }
                 ]
             },
             '목': {
@@ -268,8 +251,8 @@
                 dinner: '19:00 ~ 20:00 (학원 후 식사)',
                 timetable: ['수학', '역사', '음악', '영어', '과학', '체육', '사회'],
                 sessions: [
-                    { name: '복습 세션 1', time: '20:00 ~ 21:30', focus: '역사 / 과학' },
-                    { name: '복습 세션 2', time: '21:30 ~ 22:30', focus: '수학 문제풀이' }
+                    { name: '과학 집중 세션 1', time: '20:00 ~ 21:30', focus: '[과학] 교과서 및 프린트 핵심 용어 암기' },
+                    { name: '역사 구멍 메꾸기', time: '21:30 ~ 22:30', focus: '[역사] 이해 안 가는 취약 단원 인강 발췌 수강' }
                 ]
             },
             '금': {
@@ -277,8 +260,8 @@
                 dinner: '18:00 ~ 19:00 (정시 식사)',
                 timetable: ['영어', '사회', '국어', '기술', '체육', '기술'],
                 sessions: [
-                    { name: '금요 세션 1', time: '19:00 ~ 20:30', focus: '과학 총정리' },
-                    { name: '금요 세션 2', time: '20:30 ~ 22:00', focus: '수학 오답노트' }
+                    { name: '금요 오답 세션 1', time: '19:00 ~ 20:30', focus: '[수학/과학] 평일 동안 틀린 문제 총집합 오답노트 작성' },
+                    { name: '금요 주간 리뷰', time: '20:30 ~ 22:00', focus: '이번 주 목표 달성률 체크 및 밀린 공부 마무리' }
                 ]
             },
             '토': {
@@ -286,8 +269,8 @@
                 dinner: '18:00 ~ 19:00 (자유 식사)',
                 timetable: ['주말 자율 학습', '취미 활동'],
                 sessions: [
-                    { name: '주말 집중 세션', time: '10:00 ~ 13:00', focus: '취약 과목 보충' },
-                    { name: '주말 자유 세션', time: '14:00 ~ 17:00', focus: '심화 문제 풀이' }
+                    { name: '주말 딥워크 세션 1', time: '10:00 ~ 13:00', focus: '[수학/과학] 가장 부족한 단원 집중 기출문제 풀이' },
+                    { name: '주말 딥워크 세션 2', time: '14:00 ~ 17:00', focus: '[역사] 단원별 문제 풀이 및 암기 빵꾸 난 곳 채우기' }
                 ]
             },
             '일': {
@@ -295,7 +278,7 @@
                 dinner: '18:00 ~ 19:00 (가족 식사)',
                 timetable: ['휴식', '일주일 계획 점검'],
                 sessions: [
-                    { name: '일요일 점검', time: '20:00 ~ 21:30', focus: '차주 계획 수립' }
+                    { name: '일요일 리셋 및 세팅', time: '20:00 ~ 21:30', focus: '다음 주 공부 분량 현실적으로 배분 (무리한 계획 절대 금지)' }
                 ]
             }
         };
@@ -332,7 +315,6 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // 오늘 이후의 일정만 필터링
             const upcoming = academicEvents.filter(event => new Date(event.end) >= today);
 
             if (upcoming.length === 0) {
@@ -506,8 +488,6 @@
             changeDay(days[todayIdx]);
             renderAcademicEvents();
         }
-
-        window.onload = updateDateTime;
     </script>
 </body>
 </html>
